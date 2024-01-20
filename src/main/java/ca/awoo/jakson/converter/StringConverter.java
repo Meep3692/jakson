@@ -10,6 +10,7 @@ public class StringConverter implements Converter<String> {
     }
 
     public String convert(SValue<?> value, Class<? extends String> type) throws DeconversionException {
+        if(value == null) throw new DeconversionException(value, "Attempt to deconvert a null value to a string.");
         if (value instanceof SString) {
             return ((SString) value).getValue();
         } else {
