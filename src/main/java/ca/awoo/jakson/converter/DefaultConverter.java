@@ -1,10 +1,11 @@
-package ca.awoo.jakson;
+package ca.awoo.jakson.converter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 
 import ca.awoo.fwoabl.Optional;
+import ca.awoo.jakson.Jakson;
 import ca.awoo.jakson.svalue.SNull;
 import ca.awoo.jakson.svalue.SObject;
 import ca.awoo.jakson.svalue.SValue;

@@ -1,8 +1,40 @@
 package ca.awoo.jakson;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import ca.awoo.fwoabl.Pair;
+import ca.awoo.jakson.converter.ConversionException;
+import ca.awoo.jakson.converter.Converter;
+import ca.awoo.jakson.converter.DeconversionException;
 import ca.awoo.jakson.svalue.SValue;
 
 public class Jakson {
+
+    private final Set<Pair<ClassMatcher, Converter<?>>> converters = new HashSet<Pair<ClassMatcher, Converter<?>>>();
+    private Converter<?> defaultConverter = null;
+
+    private Pair<ClassMatcher, Converter<?>> findConverter(Class<?> type){
+        for(Pair<ClassMatcher, Converter<?>> pair : converters){
+            if(pair.first.matches(type)){
+                return pair;
+            }
+        }
+        return null;
+    }
+
+    public void registerConverter(ClassMatcher matcher, Converter<?> converter){
+        converters.add(new Pair<ClassMatcher, Converter<?>>(matcher, converter));
+    }
+
+    public void registerConverter(Class<?> type, Converter<?> converter){
+        registerConverter(new SingleClassMatcher(type), converter);
+    }
+
+    public void registerDefaultConverter(Converter<?> converter){
+        defaultConverter = converter;
+    }
+
     public SValue<?> convert(Object value, Class<?> type) throws ConversionException {
         throw new UnsupportedOperationException("Not yet implemented");
     }

@@ -1,4 +1,4 @@
-package ca.awoo.jakson;
+package ca.awoo.jakson.converter;
 
 public class ConversionException extends Exception {
 

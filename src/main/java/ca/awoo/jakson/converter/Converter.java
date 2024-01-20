@@ -1,4 +1,4 @@
-package ca.awoo.jakson;
+package ca.awoo.jakson.converter;
 
 import ca.awoo.jakson.svalue.SValue;
 
