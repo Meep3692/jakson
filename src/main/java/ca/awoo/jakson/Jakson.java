@@ -4,20 +4,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ca.awoo.fwoabl.Pair;
-import ca.awoo.jakson.converter.ConversionException;
-import ca.awoo.jakson.converter.Converter;
-import ca.awoo.jakson.converter.DeconversionException;
+import ca.awoo.jakson.converter.*;
 import ca.awoo.jakson.svalue.SValue;
 
 public class Jakson {
 
-    private final Set<Pair<ClassMatcher, Converter<?>>> converters = new HashSet<Pair<ClassMatcher, Converter<?>>>();
+    private final Set<Pair<ClassMatcher, Converter<? extends Object>>> converters = new HashSet<Pair<ClassMatcher, Converter<?>>>();
     private Converter<?> defaultConverter = null;
 
-    private Pair<ClassMatcher, Converter<?>> findConverter(Class<?> type){
+    private Converter<?> findConverter(Class<?> type){
         for(Pair<ClassMatcher, Converter<?>> pair : converters){
             if(pair.first.matches(type)){
-                return pair;
+                return pair.second;
             }
         }
         return null;
@@ -35,12 +33,51 @@ public class Jakson {
         defaultConverter = converter;
     }
 
-    public SValue<?> convert(Object value, Class<?> type) throws ConversionException {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public void defaultConfig(){
+        registerDefaultConverter(new DefaultConverter(this));
+        registerConverter(new ArrayClassMatcher(), new ArrayConverter(this));
+        registerConverter(Byte.class, new ByteConverter());
+        registerConverter(Boolean.class, new BooleanConverter());
+        registerConverter(Character.class, new CharacterConverter());
+        registerConverter(Double.class, new DoubleConverter());
+        registerConverter(Float.class, new FloatConverter());
+        registerConverter(Integer.class, new IntegerConverter());
+        registerConverter(Long.class, new LongConverter());
+        registerConverter(Short.class, new ShortConverter());
+        registerConverter(String.class, new StringConverter());
+        registerConverter(new AssignagleClassMatcher(Convertable.class), new InterfaceConverter());
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> SValue<?> convert(T value, Class<? extends Object> type) throws ConversionException {
+        if(type.isPrimitive()){
+            type = mikeTyson(type);
+        }
+        Converter<T> converter = (Converter<T>) findConverter(type);
+        if(converter == null){
+            if(defaultConverter == null){
+                throw new ConversionException(value, "No converter found for type " + type.getName());
+            }else{
+                converter = (Converter<T>) defaultConverter;
+            }
+        }
+        return converter.convert(value, (Class<? extends T>)type);
+    }
+
+    @SuppressWarnings("unchecked")
     public <T> T convert(SValue<?> value, Class<? extends T> type) throws DeconversionException {
-        throw new UnsupportedOperationException("Not yet implemented");
+        if(type.isPrimitive()){
+            type = (Class<? extends T>) mikeTyson(type);
+        }
+        Converter<T> converter = (Converter<T>) findConverter(type);
+        if(converter == null){
+            if(defaultConverter == null){
+                throw new DeconversionException(value, "No converter found for type " + type.getName());
+            }else{
+                converter = (Converter<T>) defaultConverter;
+            }
+        }
+        return converter.convert(value, type);
     }
 
     /**
